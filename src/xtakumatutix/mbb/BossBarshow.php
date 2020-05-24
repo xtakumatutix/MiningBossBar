@@ -1,7 +1,5 @@
 <?php
 
-// アイコン:http://flat-icon-design.com/?p=453
-
 namespace xtakumatutix\mbb;
 
 use bossbarapi\bossbar\BossBar;
@@ -24,17 +22,18 @@ class BossBarshow implements Listener
     public function onJoin(PlayerJoinEvent $event)
     {
         $player = $event->getPlayer();
-        $task = new ClosureTask(function (int $currentTick) use ($player): void {
+        $bossBar = BossBar::create($player);
+        $task = new ClosureTask(function (int $currentTick) use ($player, $bossBar): void {
             $exp = MiningLevelAPI::getInstance()->getExp($player);
             $level = MiningLevelAPI::getInstance()->getLevel($player);
             $next = MiningLevelAPI::getInstance()->getLevelUpExp($player);
-            $bossBar = BossBar::create($player);
-            $bossBar->setTitle("現在のレベル：".$level);
-            $bossBar->setPercentage($exp / $next);
-            $bossBar->show();
+            $math = $exp / $next;//計算
+            $bossBar->setTitle("§b現在のレベル§f".$level."\n\n§b次のレベルまで§f".$exp."/".$next);//タイトル
+            $bossBar->setPercentage($math);//ボスバーのあの残量みたいなやつ
+            $bossBar->show();//表示
         });
-        $plugin = Server::getInstance()->getPluginManager()->getPlugin("MiningBossBar");
+        $plugin = Server::getInstance()->getPluginManager()->getPlugin("MiningBossBar");//Taskのやつね
         /** @var Plugin $plugin */
-        $plugin->getScheduler()->scheduleRepeatingTask($task, 20);
+        $plugin->getScheduler()->scheduleRepeatingTask($task, 20);//一秒更新
     }
 }
